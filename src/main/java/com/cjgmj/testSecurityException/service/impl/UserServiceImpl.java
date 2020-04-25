@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class UserServiceImpl implements IUserService {
 	private RoleRepository roleRepository;
 
 	@Override
+	@PreAuthorize("hasRole('ADMIN')")
 	public List<UserEntity> findAll() {
 		return userRepository.findAll();
 	}
