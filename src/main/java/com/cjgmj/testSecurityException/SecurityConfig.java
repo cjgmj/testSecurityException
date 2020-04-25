@@ -1,5 +1,7 @@
 package com.cjgmj.testSecurityException;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.cjgmj.testSecurityException.filter.AuthenticationFilter;
 import com.cjgmj.testSecurityException.filter.AuthorizationFilter;
+import com.cjgmj.testSecurityException.utils.ExceptionUtils;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -31,7 +34,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().antMatchers("/register").permitAll().anyRequest().authenticated().and()
 				.addFilter(new AuthenticationFilter(authenticationManager()))
 				.addFilterAfter(new AuthorizationFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
+				.accessDeniedHandler((req, rsp, e) -> {
+					rsp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					rsp.setContentType("application/json");
+
+					rsp.getWriter().write(ExceptionUtils.getObjectMapper()
+							.writeValueAsString(ExceptionUtils.getResponse(e.getMessage())));
+				}).authenticationEntryPoint((req, rsp, e) -> {
+					rsp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+					rsp.setContentType("application/json");
+
+					rsp.getWriter().write(ExceptionUtils.getObjectMapper()
+							.writeValueAsString(ExceptionUtils.getResponse(e.getMessage())));
+				});
 	}
 
 	@Autowired

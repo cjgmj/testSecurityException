@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.cjgmj.testSecurityException.utils.ExceptionUtils;
 import com.cjgmj.testSecurityException.utils.JwtConfig;
 
 import io.jsonwebtoken.Claims;
@@ -41,15 +42,9 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 			try {
 				claims = Jwts.parserBuilder().setSigningKey(JwtConfig.KEY).build().parseClaimsJws(token).getBody();
 			} catch (ExpiredJwtException e) {
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-
-				response.getWriter().write("El token está expirado");
+				throw e;
 			} catch (JwtException ex) {
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-
-				response.getWriter().write("El token no es válido");
+				throw ex;
 			}
 
 			String username = claims.getSubject();
@@ -70,7 +65,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setContentType("application/json");
 
-			response.getWriter().write("No tienes permiso para acceder");
+			response.getWriter().write(
+					ExceptionUtils.getObjectMapper().writeValueAsString(ExceptionUtils.getResponse(e.getMessage())));
 		}
 	}
 
