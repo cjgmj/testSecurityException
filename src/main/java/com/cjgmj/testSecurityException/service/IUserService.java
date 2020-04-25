@@ -10,6 +10,6 @@ public interface IUserService {
 
 	public UserEntity findByUsername(String username);
 
-	public UserEntity createUser(UserEntity user);
+	public UserEntity registerUser(UserEntity user);
 
 }

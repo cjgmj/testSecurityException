@@ -30,9 +30,9 @@ public class UserController {
 		return userService.findByUsername(username);
 	}
 
-	@PostMapping
-	public UserEntity createUser(@RequestBody UserEntity user) {
-		return userService.createUser(user);
+	@PostMapping("/register")
+	public UserEntity registerUser(@RequestBody UserEntity user) {
+		return userService.registerUser(user);
 	}
 
 }

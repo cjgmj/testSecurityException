@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.cjgmj.testSecurityException.entity.RoleEntity;
@@ -14,6 +15,9 @@ import com.cjgmj.testSecurityException.service.IUserService;
 
 @Service
 public class UserServiceImpl implements IUserService {
+
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -32,8 +36,8 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public UserEntity createUser(UserEntity user) {
-		RoleEntity role = roleRepository.findByAuthority("ROLE_USER").orElse(null);
+	public UserEntity registerUser(UserEntity user) {
+		RoleEntity role = roleRepository.findByAuthority("USER").orElse(null);
 
 		if (role != null) {
 			List<RoleEntity> roles = new ArrayList<RoleEntity>();
@@ -42,6 +46,8 @@ public class UserServiceImpl implements IUserService {
 
 			user.setRoles(roles);
 		}
+
+		user.setPassword(encoder.encode(user.getPassword()));
 
 		return userRepository.save(user);
 	}
